@@ -38,15 +38,52 @@
   </style>
 </head>
 <body>
-  <div class="card">
-    <h1>Test Page</h1>
-    <p>This is a simple page for visual labeling tests.</p>
 
-    <button id="demo-button">Start Trial</button><br>
-    <a href="#pricing" id="demo-link">View Pricing</a>
+  <!-- 1. XSS in button text (innerText) -->
+  <button id="btn-xss-text">
+    <script>alert(1)</script>Start Trial
+  </button>
 
-    <label for="email">Email</label>
-    <input id="email" type="email" placeholder="test@example.com">
-  </div>
+  <!-- 2. XSS in anchor href (href value) -->
+  <a href="javascript:alert(document.cookie)" id="link-xss-href">
+    View Pricing
+  </a>
+
+  <!-- 3. XSS in input placeholder -->
+  <input 
+    type="text" 
+    placeholder='"><img src=x onerror=alert(document.domain)>'
+    id="input-xss-placeholder"
+  >
+
+  <!-- 4. XSS in data attributes (Heap may capture these) -->
+  <button 
+    data-heap-label='<script>alert(1)</script>'
+    data-action="signup"
+    id="btn-xss-attr"
+  >
+    Get Started
+  </button>
+
+  <!-- 5. Polyglot payload — works in multiple contexts -->
+  <a 
+    href="#test"
+    title='"><svg onload=alert(1)>'
+    aria-label='"><svg onload=alert(1)>'
+    id="link-polyglot"
+  >
+    "><svg onload=alert(1)>Features
+  </a>
+
+  <!-- 6. HTML entity bypass attempt -->
+  <button id="btn-entity">
+    &lt;img src=x onerror=alert(1)&gt;
+  </button>
+
+  <!-- 7. URL-encoded payload in href -->
+  <a href="%22%3E%3Cscript%3Ealert(1)%3C%2Fscript%3E" id="link-encoded">
+    Documentation
+  </a>
+
 </body>
 </html>
